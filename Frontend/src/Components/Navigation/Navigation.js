@@ -1,35 +1,53 @@
-import React, { useState } from "react";
+//Navigation.js
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import avatar from "../../img/avatar.png";
 import { signout } from "../../utils/Icons";
 import { menuItems } from "../../utils/menuItems";
 
 function Navigation({ active, setActive }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Fetch user details from local storage (or global state if using Redux/Context)
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token"); // Remove auth token
+    window.location.reload(); // Reload the page or redirect to login
+  };
+
   return (
     <NavStyled>
       <div className="user-con">
-        <img src={avatar} alt="" />
+        <img src={avatar} alt="User Avatar" />
         <div className="text">
-          <h2>Mike</h2>
-          <p>Your Money</p>
+          <h2>{user ? `${user.firstName} ${user.lastName}` : "Guest"}</h2>{" "}
+          {/* ✅ Fixed */}
+          <p>{user ? user.email : "Not logged in"}</p>
         </div>
       </div>
       <ul className="menu-items">
-        {menuItems.map((item) => {
-          return (
-            <li
-              key={item.id}
-              onClick={() => setActive(item.id)}
-              className={active === item.id ? "active" : ""}
-            >
-              {item.icon}
-              <span>{item.title}</span>
-            </li>
-          );
-        })}
+        {menuItems.map((item) => (
+          <li
+            key={item.id}
+            onClick={() => setActive(item.id)}
+            className={active === item.id ? "active" : ""}
+          >
+            {item.icon}
+            <span>{item.title}</span>
+          </li>
+        ))}
       </ul>
       <div className="bottom-nav">
-        <li>{signout} Sign Out</li>
+        <li onClick={handleSignOut} style={{ cursor: "pointer" }}>
+          {signout} Sign Out
+        </li>
       </div>
     </NavStyled>
   );
@@ -47,11 +65,13 @@ const NavStyled = styled.nav`
   flex-direction: column;
   justify-content: space-between;
   gap: 2rem;
+
   .user-con {
     height: 100px;
     display: flex;
     align-items: center;
     gap: 1rem;
+
     img {
       width: 80px;
       height: 80px;
@@ -62,9 +82,11 @@ const NavStyled = styled.nav`
       padding: 0.2rem;
       box-shadow: 0px 1px 17px rgba(0, 0, 0, 0.06);
     }
+
     h2 {
       color: rgba(34, 34, 96, 1);
     }
+
     p {
       color: rgba(34, 34, 96, 0.6);
     }
@@ -74,6 +96,7 @@ const NavStyled = styled.nav`
     flex: 1;
     display: flex;
     flex-direction: column;
+
     li {
       display: grid;
       grid-template-columns: 40px auto;
@@ -85,6 +108,7 @@ const NavStyled = styled.nav`
       color: rgba(34, 34, 96, 0.6);
       padding-left: 1rem;
       position: relative;
+
       i {
         color: rgba(34, 34, 96, 0.6);
         font-size: 1.4rem;
@@ -95,9 +119,11 @@ const NavStyled = styled.nav`
 
   .active {
     color: rgba(34, 34, 96, 1) !important;
+
     i {
       color: rgba(34, 34, 96, 1) !important;
     }
+
     &::before {
       content: "";
       position: absolute;

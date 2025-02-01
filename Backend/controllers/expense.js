@@ -1,3 +1,4 @@
+//expense.js
 const Expense = require("../models/ExpenseModel");
 
 // Add a new expense (attached to the authenticated user)

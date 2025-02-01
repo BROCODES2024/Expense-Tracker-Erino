@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000/api/v1/";
+const BASE_URL = "http://localhost:5001/api/transactions/";
 
 const GlobalContext = React.createContext();
 
@@ -12,18 +12,37 @@ export const GlobalProvider = ({ children }) => {
 
   //calculate incomes
   const addIncome = async (income) => {
-    const response = await axios
-      .post(`${BASE_URL}add-income`, income)
-      .catch((err) => {
-        setError(err.response.data.message);
+    try {
+      const response = await axios.post(`${BASE_URL}add-income`, income, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        withCredentials: true, // ✅ Important for cookies to work
       });
-    getIncomes();
+
+      console.log("Income Added Successfully:", response.data);
+      getIncomes(); // ✅ Fetch updated income list
+    } catch (error) {
+      console.error(
+        "Error adding income:",
+        error.response?.data || error.message
+      );
+    }
   };
 
   const getIncomes = async () => {
-    const response = await axios.get(`${BASE_URL}get-incomes`);
-    setIncomes(response.data);
-    console.log(response.data);
+    try {
+      console.log("Calling API: GET get-incomes"); // Debug log
+      const response = await axios.get(`${BASE_URL}get-incomes`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        withCredentials: true,
+      });
+      console.log("Fetched Incomes from API:", response.data); // Debug log
+      setIncomes(response.data.incomes || response.data); // Adjust based on your API response shape
+    } catch (error) {
+      console.error(
+        "Error fetching incomes:",
+        error.response?.data || error.message
+      );
+    }
   };
 
   const deleteIncome = async (id) => {
@@ -51,9 +70,13 @@ export const GlobalProvider = ({ children }) => {
   };
 
   const getExpenses = async () => {
-    const response = await axios.get(`${BASE_URL}get-expenses`);
-    setExpenses(response.data);
-    console.log(response.data);
+    try {
+      const response = await axios.get(`${BASE_URL}get-expenses`);
+      console.log("Fetched Expenses:", response.data); // ✅ Debugging Line
+      setExpenses(response.data);
+    } catch (error) {
+      console.error("Error fetching expenses:", error);
+    }
   };
 
   const deleteExpense = async (id) => {

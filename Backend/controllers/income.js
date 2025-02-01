@@ -1,3 +1,4 @@
+//income.js
 const Income = require("../models/IncomeModel");
 
 // Add a new income (attached to the authenticated user)
